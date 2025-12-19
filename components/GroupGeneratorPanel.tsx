@@ -22,14 +22,14 @@ export const GroupGeneratorPanel: React.FC<GroupGeneratorPanelProps> = ({ names 
 
   const handleGenerate = () => {
     if (names.length === 0) return;
-    
+
     // Shuffle
     const shuffled = shuffleArray<Person>(names);
-    
+
     // Chunk
     const newGroups: Group[] = [];
     let groupIndex = 1;
-    
+
     for (let i = 0; i < shuffled.length; i += groupSize) {
       const chunk = shuffled.slice(i, i + groupSize);
       newGroups.push({
@@ -37,7 +37,7 @@ export const GroupGeneratorPanel: React.FC<GroupGeneratorPanelProps> = ({ names 
         members: chunk
       });
     }
-    
+
     setGroups(newGroups);
     setIsGenerated(true);
   };
@@ -64,91 +64,98 @@ export const GroupGeneratorPanel: React.FC<GroupGeneratorPanelProps> = ({ names 
     document.body.removeChild(link);
   };
 
-  // Color palette for groups to make them visually distinct
+  // Modern Gradient Colors for Groups
   const cardColors = [
-    "bg-blue-50 border-blue-100 text-blue-900",
-    "bg-green-50 border-green-100 text-green-900",
-    "bg-purple-50 border-purple-100 text-purple-900",
-    "bg-amber-50 border-amber-100 text-amber-900",
-    "bg-rose-50 border-rose-100 text-rose-900",
-    "bg-cyan-50 border-cyan-100 text-cyan-900",
+    "bg-gradient-to-br from-blue-500/20 to-blue-600/10 border-blue-400/20 text-blue-100",
+    "bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 border-emerald-400/20 text-emerald-100",
+    "bg-gradient-to-br from-purple-500/20 to-purple-600/10 border-purple-400/20 text-purple-100",
+    "bg-gradient-to-br from-amber-500/20 to-amber-600/10 border-amber-400/20 text-amber-100",
+    "bg-gradient-to-br from-rose-500/20 to-rose-600/10 border-rose-400/20 text-rose-100",
+    "bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-cyan-400/20 text-cyan-100",
   ];
 
   return (
     <div className="animate-pop-in space-y-8">
       {/* Settings Bar */}
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-6">
-         <div className="flex-1 w-full md:w-auto">
-            <label className="block text-sm font-medium text-gray-700 mb-2">每組人數設定 ({groupSize} 人/組)</label>
-            <div className="flex items-center gap-4">
-              <input 
-                type="range" 
-                min="2" 
-                max={Math.max(10, Math.ceil(names.length / 2))} 
-                value={groupSize} 
-                onChange={(e) => setGroupSize(parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-              />
-              <div className="w-12 h-10 flex items-center justify-center bg-gray-100 rounded-lg font-bold text-gray-700 border border-gray-200">
-                {groupSize}
-              </div>
+      <div className="glass-card p-6 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex-1 w-full md:w-auto">
+          <label className="block text-sm font-bold text-slate-300 mb-3 flex items-center">
+            <svg className="w-5 h-5 mr-2 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            每組人數設定
+          </label>
+          <div className="flex items-center gap-6">
+            <input
+              type="range"
+              min="2"
+              max={Math.max(10, Math.ceil(names.length / 2))}
+              value={groupSize}
+              onChange={(e) => setGroupSize(parseInt(e.target.value))}
+              className="w-full h-3 bg-slate-700 rounded-full appearance-none cursor-pointer accent-indigo-500"
+            />
+            <div className="w-16 h-12 flex items-center justify-center bg-slate-800 rounded-xl font-bold text-white border border-white/10 shadow-inner text-xl">
+              {groupSize}
             </div>
-            <p className="text-xs text-gray-400 mt-2">總人數: {names.length} 人，預計產生 {Math.ceil(names.length / groupSize)} 組</p>
-         </div>
-         
-         <div className="flex gap-2">
-            <Button size="lg" onClick={handleGenerate} icon={
+          </div>
+          <p className="text-xs text-slate-500 mt-3 font-medium">總人數: {names.length} 人，預計產生 <span className="text-indigo-400 underline">{Math.ceil(names.length / groupSize)}</span> 組</p>
+        </div>
+
+        <div className="flex gap-3">
+          <Button size="lg" onClick={handleGenerate} className="px-8" icon={
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+          }>
+            自動分組
+          </Button>
+
+          {isGenerated && (
+            <Button size="lg" variant="secondary" onClick={downloadCSV} icon={
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
             }>
-              自動分組
+              匯出 CSV
             </Button>
-            
-            {isGenerated && (
-              <Button size="lg" variant="secondary" onClick={downloadCSV} icon={
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-              }>
-                匯出 CSV
-              </Button>
-            )}
-         </div>
+          )}
+        </div>
       </div>
 
       {/* Results Grid */}
       {isGenerated && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-           {groups.map((group, idx) => (
-             <div 
-                key={group.id} 
-                className={`rounded-xl shadow-sm border p-4 transition hover:shadow-md ${cardColors[idx % cardColors.length]}`}
-                style={{ animationDelay: `${idx * 0.05}s` }}
-             >
-                <div className="flex justify-between items-center mb-3 pb-2 border-b border-black/5">
-                   <h3 className="font-bold text-lg">第 {group.id} 組</h3>
-                   <span className="text-xs font-medium bg-white/50 px-2 py-1 rounded-full">{group.members.length} 人</span>
-                </div>
-                <ul className="space-y-2">
-                   {group.members.map(member => (
-                     <li key={member.id} className="flex items-center">
-                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-50 mr-2"></span>
-                        <span className="font-medium">{member.name}</span>
-                     </li>
-                   ))}
-                </ul>
-             </div>
-           ))}
+          {groups.map((group, idx) => (
+            <div
+              key={group.id}
+              className={`rounded-2xl shadow-lg border p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl ${cardColors[idx % cardColors.length]}`}
+              style={{ animationDelay: `${idx * 0.05}s` }}
+            >
+              <div className="flex justify-between items-center mb-4 pb-3 border-b border-white/10">
+                <h3 className="font-bold text-xl drop-shadow-sm">第 {group.id} 組</h3>
+                <span className="text-xs font-bold bg-white/20 px-3 py-1 rounded-full text-white backdrop-blur-sm shadow-sm">{group.members.length} 人</span>
+              </div>
+              <ul className="space-y-3">
+                {group.members.map(member => (
+                  <li key={member.id} className="flex items-center group">
+                    <span className="w-2 h-2 rounded-full bg-current opacity-70 mr-3 group-hover:scale-125 transition-transform"></span>
+                    <span className="font-medium opacity-90 group-hover:opacity-100">{member.name}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       )}
-      
+
       {!isGenerated && names.length > 0 && (
-        <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
-           <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-center py-24 glass-card rounded-3xl border border-dashed border-white/10">
+          <div className="w-20 h-20 mx-auto bg-white/5 rounded-full flex items-center justify-center mb-6">
+            <svg className="w-10 h-10 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-           </svg>
-           <p className="text-gray-500 text-lg">準備就緒，請點擊上方按鈕進行分組</p>
+            </svg>
+          </div>
+          <p className="text-slate-400 text-lg font-medium">準備就緒，請點擊上方按鈕進行分組</p>
         </div>
       )}
     </div>

@@ -12,9 +12,9 @@ const App: React.FC = () => {
     switch (currentMode) {
       case AppMode.INPUT:
         return (
-          <InputPanel 
-            names={names} 
-            setNames={setNames} 
+          <InputPanel
+            names={names}
+            setNames={setNames}
             onNext={() => setCurrentMode(AppMode.LUCKY_DRAW)}
           />
         );
@@ -34,71 +34,71 @@ const App: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
+    <div className="min-h-screen text-slate-100 relative overflow-x-hidden selection:bg-pink-500 selection:text-white">
+      <div className="mesh-bg"></div>
+
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-indigo-600 text-white font-bold text-xl mr-3">
+      <header className="fixed top-0 left-0 right-0 z-50 glass-panel border-b-0">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30 text-white font-black text-xl">
                 HR
               </div>
-              <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 hidden sm:block">
-                Lucky & Group Tool
+              <h1 className="text-2xl font-display font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 hidden sm:block">
+                Lucky & Group
               </h1>
             </div>
-            
+
             {/* Desktop Nav */}
-            <nav className="hidden md:flex space-x-1">
+            <nav className="hidden md:flex p-1 rounded-full glass-card border border-white/10">
               {navItems.map((item) => (
                 <button
                   key={item.mode}
                   onClick={() => setCurrentMode(item.mode)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center ${
-                    currentMode === item.mode
-                      ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200'
-                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
+                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center ${currentMode === item.mode
+                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/40'
+                      : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
                 >
                   <span className="mr-2">{item.icon}</span>
                   {item.label}
                 </button>
               ))}
             </nav>
-            
-            {/* Mobile Nav Placeholder (Simple current status) */}
-             <div className="md:hidden text-sm font-medium text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
-                {navItems.find(n => n.mode === currentMode)?.label}
-             </div>
+
+            <div className="w-10"></div> {/* Spacer for balance */}
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {renderContent()}
+      <main className="pt-28 pb-32 px-4 sm:px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="animate-pop-in">
+            {renderContent()}
+          </div>
+        </div>
       </main>
 
       {/* Mobile Bottom Nav */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 pb-safe z-50">
-        <div className="flex justify-around items-center h-16">
+      <div className="md:hidden fixed bottom-6 left-4 right-4 z-50">
+        <div className="glass-card rounded-2xl p-2 flex justify-around items-center shadow-2xl border border-white/10">
           {navItems.map((item) => (
             <button
               key={item.mode}
               onClick={() => setCurrentMode(item.mode)}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${
-                currentMode === item.mode ? 'text-indigo-600' : 'text-gray-400'
-              }`}
+              className={`flex flex-col items-center justify-center p-3 rounded-xl transition-all w-full ${currentMode === item.mode
+                  ? 'bg-indigo-600/20 text-indigo-300'
+                  : 'text-slate-500 hover:text-slate-300'
+                }`}
             >
-              <span className="text-xl">{item.icon}</span>
-              <span className="text-[10px] font-medium">{item.label}</span>
+              <span className="text-xl mb-1">{item.icon}</span>
+              <span className="text-[10px] font-medium opacity-80">{item.label}</span>
             </button>
           ))}
         </div>
       </div>
-      
-      {/* Safe area padding for mobile bottom nav */}
-      <div className="h-16 md:hidden"></div>
     </div>
   );
 };
