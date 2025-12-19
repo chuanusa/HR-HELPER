@@ -66,12 +66,12 @@ export const GroupGeneratorPanel: React.FC<GroupGeneratorPanelProps> = ({ names 
 
   // Modern Gradient Colors for Groups
   const cardColors = [
-    "bg-gradient-to-br from-blue-500/20 to-blue-600/10 border-blue-400/20 text-blue-100",
-    "bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 border-emerald-400/20 text-emerald-100",
-    "bg-gradient-to-br from-purple-500/20 to-purple-600/10 border-purple-400/20 text-purple-100",
-    "bg-gradient-to-br from-amber-500/20 to-amber-600/10 border-amber-400/20 text-amber-100",
-    "bg-gradient-to-br from-rose-500/20 to-rose-600/10 border-rose-400/20 text-rose-100",
-    "bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-cyan-400/20 text-cyan-100",
+    "bg-gradient-to-br from-blue-500/20 to-blue-600/10 border-blue-400/20 text-blue-800 dark:text-blue-100",
+    "bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 border-emerald-400/20 text-emerald-800 dark:text-emerald-100",
+    "bg-gradient-to-br from-purple-500/20 to-purple-600/10 border-purple-400/20 text-purple-800 dark:text-purple-100",
+    "bg-gradient-to-br from-amber-500/20 to-amber-600/10 border-amber-400/20 text-amber-800 dark:text-amber-100",
+    "bg-gradient-to-br from-rose-500/20 to-rose-600/10 border-rose-400/20 text-rose-800 dark:text-rose-100",
+    "bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-cyan-400/20 text-cyan-800 dark:text-cyan-100",
   ];
 
   return (
@@ -79,8 +79,8 @@ export const GroupGeneratorPanel: React.FC<GroupGeneratorPanelProps> = ({ names 
       {/* Settings Bar */}
       <div className="glass-card p-6 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex-1 w-full md:w-auto">
-          <label className="block text-sm font-bold text-slate-300 mb-3 flex items-center">
-            <svg className="w-5 h-5 mr-2 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center">
+            <svg className="w-5 h-5 mr-2 text-indigo-500 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
             每組人數設定
@@ -92,13 +92,13 @@ export const GroupGeneratorPanel: React.FC<GroupGeneratorPanelProps> = ({ names 
               max={Math.max(10, Math.ceil(names.length / 2))}
               value={groupSize}
               onChange={(e) => setGroupSize(parseInt(e.target.value))}
-              className="w-full h-3 bg-slate-700 rounded-full appearance-none cursor-pointer accent-indigo-500"
+              className="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-full appearance-none cursor-pointer accent-indigo-500"
             />
-            <div className="w-16 h-12 flex items-center justify-center bg-slate-800 rounded-xl font-bold text-white border border-white/10 shadow-inner text-xl">
+            <div className="w-16 h-12 flex items-center justify-center bg-white dark:bg-slate-800 rounded-xl font-bold text-slate-700 dark:text-white border border-slate-200 dark:border-white/10 shadow-inner text-xl">
               {groupSize}
             </div>
           </div>
-          <p className="text-xs text-slate-500 mt-3 font-medium">總人數: {names.length} 人，預計產生 <span className="text-indigo-400 underline">{Math.ceil(names.length / groupSize)}</span> 組</p>
+          <p className="text-xs text-slate-500 dark:text-slate-500 mt-3 font-medium">總人數: {names.length} 人，預計產生 <span className="text-indigo-600 dark:text-indigo-400 underline">{Math.ceil(names.length / groupSize)}</span> 組</p>
         </div>
 
         <div className="flex gap-3">
@@ -131,9 +131,9 @@ export const GroupGeneratorPanel: React.FC<GroupGeneratorPanelProps> = ({ names 
               className={`rounded-2xl shadow-lg border p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl ${cardColors[idx % cardColors.length]}`}
               style={{ animationDelay: `${idx * 0.05}s` }}
             >
-              <div className="flex justify-between items-center mb-4 pb-3 border-b border-white/10">
+              <div className="flex justify-between items-center mb-4 pb-3 border-b border-black/10 dark:border-white/10">
                 <h3 className="font-bold text-xl drop-shadow-sm">第 {group.id} 組</h3>
-                <span className="text-xs font-bold bg-white/20 px-3 py-1 rounded-full text-white backdrop-blur-sm shadow-sm">{group.members.length} 人</span>
+                <span className="text-xs font-bold bg-white/40 dark:bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm shadow-sm">{group.members.length} 人</span>
               </div>
               <ul className="space-y-3">
                 {group.members.map(member => (
@@ -149,13 +149,13 @@ export const GroupGeneratorPanel: React.FC<GroupGeneratorPanelProps> = ({ names 
       )}
 
       {!isGenerated && names.length > 0 && (
-        <div className="text-center py-24 glass-card rounded-3xl border border-dashed border-white/10">
-          <div className="w-20 h-20 mx-auto bg-white/5 rounded-full flex items-center justify-center mb-6">
-            <svg className="w-10 h-10 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-center py-24 glass-card rounded-3xl border border-dashed border-slate-300 dark:border-white/10">
+          <div className="w-20 h-20 mx-auto bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-6">
+            <svg className="w-10 h-10 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
-          <p className="text-slate-400 text-lg font-medium">準備就緒，請點擊上方按鈕進行分組</p>
+          <p className="text-slate-500 dark:text-slate-400 text-lg font-medium">準備就緒，請點擊上方按鈕進行分組</p>
         </div>
       )}
     </div>
