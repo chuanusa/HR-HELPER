@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from './Button';
-import { Person, LuckyDrawSettings } from '../types';
+import { Person, LuckyDrawSettings, Prize, HistoryRecord } from '../types';
 import confetti from 'canvas-confetti';
 
 interface LuckyDrawPanelProps {
@@ -10,11 +10,16 @@ interface LuckyDrawPanelProps {
 export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names }) => {
   const [settings, setSettings] = useState<LuckyDrawSettings>({ allowRepeat: false });
   const [currentWinner, setCurrentWinner] = useState<Person | null>(null);
+  const [currentPrize, setCurrentPrize] = useState<Prize | null>(null);
   const [displayPerson, setDisplayPerson] = useState<Person | null>(null);
   const [isRolling, setIsRolling] = useState(false);
   const [showResultModal, setShowResultModal] = useState(false);
-  const [history, setHistory] = useState<Person[]>([]);
+  const [history, setHistory] = useState<HistoryRecord[]>([]);
   const [remainingNames, setRemainingNames] = useState<Person[]>(names);
+
+  // Prize States
+  const [prizes, setPrizes] = useState<Prize[]>([]);
+  const [prizeInput, setPrizeInput] = useState('');
 
   // Animation refs
   const intervalRef = useRef<number | null>(null);
@@ -41,6 +46,7 @@ export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names }) => {
     }
   };
 
+  // Helper: trigger confetti
   const triggerConfetti = () => {
     const duration = 3000;
     const end = Date.now() + duration;
@@ -68,10 +74,44 @@ export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names }) => {
     frame();
   };
 
+  // Prize Handlers
+  const handleAddPrize = () => {
+    if (!prizeInput.trim()) return;
+    const items = prizeInput.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+    const newPrizes = items.map((name, idx) => ({
+      id: Date.now().toString() + idx + Math.random(),
+      name
+    }));
+    setPrizes(prev => [...prev, ...newPrizes]);
+    setPrizeInput('');
+  };
+
+  const removePrize = (id: string) => {
+    setPrizes(prev => prev.filter(p => p.id !== id));
+  };
+
+  const movePrize = (index: number, direction: 'up' | 'down') => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === prizes.length - 1) return;
+
+    setPrizes(prev => {
+      const newPrizes = [...prev];
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      [newPrizes[index], newPrizes[targetIndex]] = [newPrizes[targetIndex], newPrizes[index]];
+      return newPrizes;
+    });
+  };
+
   const startDraw = () => {
     if (remainingNames.length === 0) {
       alert("所有名單已抽完！");
       return;
+    }
+
+    if (prizes.length > 0) {
+      setCurrentPrize(prizes[0]);
+    } else {
+      setCurrentPrize(null);
     }
 
     setIsRolling(true);
@@ -109,16 +149,29 @@ export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names }) => {
     const winnerIndex = Math.floor(Math.random() * remainingNames.length);
     const winner = remainingNames[winnerIndex];
 
+    const wonPrize = prizes.length > 0 ? prizes[0] : { id: 'default', name: '一般中獎' };
+
     setDisplayPerson(winner);
     setCurrentWinner(winner);
     setIsRolling(false);
     setShowResultModal(true);
     triggerConfetti();
 
-    setHistory(prev => [winner, ...prev]);
+    const record: HistoryRecord = {
+      ...winner,
+      prize: wonPrize,
+      drawnAt: Date.now()
+    };
+
+    setHistory(prev => [record, ...prev]);
 
     if (!settings.allowRepeat) {
       setRemainingNames(prev => prev.filter(p => p.id !== winner.id));
+    }
+
+    // Remove the prize if we are in prize mode
+    if (prizes.length > 0) {
+      setPrizes(prev => prev.slice(1));
     }
   };
 
@@ -160,9 +213,53 @@ export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Prize Settings (New Column) */}
+        <div className="glass-card rounded-2xl flex flex-col h-[500px] border border-white/20 dark:border-white/10 overflow-hidden order-2 lg:order-1">
+          <div className="p-5 border-b border-indigo-50 dark:border-white/10 bg-indigo-50/50 dark:bg-white/5">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center mb-2">
+              <span className="mr-2">🎁</span> 獎項設定
+            </h3>
+            <div className="flex gap-2">
+              <input
+                className="flex-1 bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="輸入獎項..."
+                value={prizeInput}
+                onChange={(e) => setPrizeInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddPrize()}
+              />
+              <button onClick={handleAddPrize} className="bg-indigo-500 text-white rounded-lg px-3 py-1 text-sm hover:bg-indigo-600 transition-colors">
+                新增
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
+            {prizes.length === 0 ? (
+              <div className="text-center text-slate-400 text-sm py-8 italic">
+                尚未設定獎項<br />(將使用預設顯示)
+              </div>
+            ) : (
+              prizes.map((prize, idx) => (
+                <div key={prize.id} className={`flex items-center justify-between p-2 rounded-lg border transition-colors ${idx === 0 ? 'bg-indigo-50 dark:bg-indigo-500/20 border-indigo-200 dark:border-indigo-500/30' : 'bg-white/50 dark:bg-white/5 border-slate-100 dark:border-white/5'}`}>
+                  <div className="flex items-center flex-1 min-w-0">
+                    <span className={`text-xs font-bold mr-2 w-5 h-5 flex items-center justify-center rounded-full ${idx === 0 ? 'bg-indigo-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500'}`}>
+                      {idx + 1}
+                    </span>
+                    <span className="text-sm font-medium truncate text-slate-700 dark:text-slate-200">{prize.name}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => movePrize(idx, 'up')} className="p-1 hover:bg-slate-200 dark:hover:bg-white/10 rounded text-slate-400 hover:text-indigo-500 disabled:opacity-30" disabled={idx === 0}>↑</button>
+                    <button onClick={() => movePrize(idx, 'down')} className="p-1 hover:bg-slate-200 dark:hover:bg-white/10 rounded text-slate-400 hover:text-indigo-500 disabled:opacity-30" disabled={idx === prizes.length - 1}>↓</button>
+                    <button onClick={() => removePrize(prize.id)} className="p-1 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded text-slate-400 hover:text-rose-500">×</button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
         {/* Main Stage */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6 order-1 lg:order-2">
           <div className="relative glass-card rounded-3xl p-2 shadow-2xl overflow-hidden min-h-[500px] flex flex-col items-center justify-center border border-white/20 dark:border-white/10 group">
             {/* Fancy Border Gradient */}
             <div className={`absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-20 group-hover:opacity-30 transition-opacity duration-1000 ${isRolling ? 'animate-pulse' : ''}`} style={{ margin: '-1px', zIndex: 0, filter: 'blur(40px)' }}></div>
@@ -175,10 +272,23 @@ export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names }) => {
                 color: isRolling ? '#818cf8' : '#cbd5e1'
               }}></div>
 
-              {/* Status Text */}
-              <h3 className="text-indigo-600 dark:text-indigo-300/80 text-sm font-bold mb-12 uppercase tracking-[0.5em] animate-pulse">
+              {/* Status Text - Prize Display */}
+              <h3 className="text-indigo-600 dark:text-indigo-300/80 text-sm font-bold mb-4 uppercase tracking-[0.5em] animate-pulse">
                 {isRolling ? 'LUCKY DRAW IN PROGRESS' : 'READY TO START'}
               </h3>
+
+              {/* Current Prize Display */}
+              <div className="mb-8 h-12 flex items-center justify-center">
+                {prizes.length > 0 ? (
+                  <div className="animate-pop-in bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 px-6 py-2 rounded-full font-bold shadow-lg shadow-amber-500/20 border border-yellow-300">
+                    <span className="mr-2">🏆</span> 正在抽出：{prizes[0].name}
+                  </div>
+                ) : (
+                  <div className="text-slate-400 dark:text-slate-500 text-sm font-medium tracking-widest uppercase">
+                    一般抽獎模式
+                  </div>
+                )}
+              </div>
 
               {/* Rolling Display */}
               <div className="relative mb-16 w-full max-w-lg h-48 bg-white/80 dark:bg-black/40 rounded-2xl border border-indigo-100 dark:border-white/10 flex items-center justify-center shadow-[inset_0_2px_20px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_20px_rgba(0,0,0,0.5)] backdrop-blur-sm overflow-hidden">
@@ -221,7 +331,7 @@ export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names }) => {
         </div>
 
         {/* History Sidebar */}
-        <div className="glass-card rounded-2xl flex flex-col h-[500px] border border-white/20 dark:border-white/10 overflow-hidden">
+        <div className="glass-card rounded-2xl flex flex-col h-[500px] border border-white/20 dark:border-white/10 overflow-hidden order-3">
           <div className="p-5 border-b border-indigo-50 dark:border-white/10 bg-indigo-50/50 dark:bg-white/5 flex justify-between items-center">
             <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center">
               <span className="mr-2">🏆</span> 中獎紀錄
@@ -251,7 +361,10 @@ export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names }) => {
                   <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 text-white rounded-lg flex items-center justify-center font-bold text-xs mr-3 shadow-lg shadow-yellow-500/20 group-hover:scale-110 transition-transform">
                     {history.length - idx}
                   </div>
-                  <div className="font-bold text-slate-700 dark:text-slate-200 text-base truncate">{person.name}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-bold text-slate-700 dark:text-slate-200 text-base truncate">{person.name}</div>
+                    <div className="text-xs text-indigo-500 dark:text-indigo-300 truncate">{(person as HistoryRecord).prize.name}</div>
+                  </div>
                 </div>
               ))
             )}
@@ -276,7 +389,10 @@ export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names }) => {
                 👑
               </div>
 
-              <h2 className="text-xl font-bold text-indigo-400 dark:text-indigo-300 uppercase tracking-[0.3em] mb-8">Winner</h2>
+              <h2 className="text-xl font-bold text-indigo-400 dark:text-indigo-300 uppercase tracking-[0.3em] mb-2">Winner</h2>
+              <div className="text-amber-500 dark:text-amber-400 font-bold text-lg mb-6 flex items-center justify-center gap-2">
+                <span>🏆</span> {(currentWinner as HistoryRecord)?.prize?.name || '恭喜中獎'}
+              </div>
 
               <div className="py-8 relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 dark:from-indigo-500/20 dark:via-purple-500/20 dark:to-pink-500/20 blur-xl rounded-full"></div>

@@ -21,3 +21,13 @@ export interface LuckyDrawSettings {
 export interface GroupingSettings {
   groupSize: number;
 }
+
+export interface Prize {
+  id: string;
+  name: string;
+}
+
+export interface HistoryRecord extends Person {
+  prize: Prize;
+  drawnAt: number;
+}
