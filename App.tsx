@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Person, AppMode } from './types';
+import { Person, AppMode, Prize } from './types';
 import { InputPanel } from './components/InputPanel';
 import { LuckyDrawPanel } from './components/LuckyDrawPanel';
 import { GroupGeneratorPanel } from './components/GroupGeneratorPanel';
+import { PrizePanel } from './components/PrizePanel';
 
 const App: React.FC = () => {
-  const [currentMode, setCurrentMode] = useState<AppMode>('input');
+  const [currentMode, setCurrentMode] = useState<AppMode>(AppMode.INPUT);
   const [names, setNames] = useState<Person[]>([]);
+  const [prizes, setPrizes] = useState<Prize[]>([]);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       return window.localStorage.getItem('theme') as 'light' | 'dark' || 'light';
@@ -29,18 +31,21 @@ const App: React.FC = () => {
   };
 
   const navItems = [
-    { mode: 'input' as AppMode, label: '名單輸入', icon: '📝' },
-    { mode: 'draw' as AppMode, label: '幸運抽獎', icon: '🎰' },
-    { mode: 'group' as AppMode, label: '自動分組', icon: '👥' },
+    { mode: AppMode.INPUT, label: '名單輸入', icon: '📝' },
+    { mode: AppMode.PRIZES, label: '獎項設定', icon: '🎁' },
+    { mode: AppMode.LUCKY_DRAW, label: '幸運抽獎', icon: '🎰' },
+    { mode: AppMode.GROUPING, label: '自動分組', icon: '👥' },
   ];
 
   const renderContent = () => {
     switch (currentMode) {
-      case 'input':
-        return <InputPanel names={names} setNames={setNames} onNext={() => setCurrentMode('draw')} />;
-      case 'draw':
-        return <LuckyDrawPanel names={names} />;
-      case 'group':
+      case AppMode.INPUT:
+        return <InputPanel names={names} setNames={setNames} onNext={() => setCurrentMode(AppMode.PRIZES)} />;
+      case AppMode.PRIZES:
+        return <PrizePanel prizes={prizes} setPrizes={setPrizes} />;
+      case AppMode.LUCKY_DRAW:
+        return <LuckyDrawPanel names={names} prizes={prizes} setPrizes={setPrizes} />;
+      case AppMode.GROUPING:
         return <GroupGeneratorPanel names={names} />;
       default:
         return null;
@@ -55,7 +60,7 @@ const App: React.FC = () => {
       <header className="glass-panel sticky top-0 z-50 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setCurrentMode('input')}>
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setCurrentMode(AppMode.INPUT)}>
               <div className="bg-gradient-to-tr from-indigo-500 to-purple-500 w-10 h-10 rounded-xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/30">
                 🎲
               </div>
@@ -87,10 +92,10 @@ const App: React.FC = () => {
                   <button
                     key={item.mode}
                     onClick={() => setCurrentMode(item.mode)}
-                    className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 flex items-center ${currentMode === item.mode
+                    className={`px - 4 py - 2 rounded - lg text - sm font - bold transition - all duration - 200 flex items - center ${currentMode === item.mode
                         ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm scale-105'
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                      }`}
+                      } `}
                   >
                     <span className="mr-2">{item.icon}</span>
                     {item.label}
@@ -114,12 +119,12 @@ const App: React.FC = () => {
             <button
               key={item.mode}
               onClick={() => setCurrentMode(item.mode)}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${currentMode === item.mode
+              className={`flex flex - col items - center justify - center w - full h - full space - y - 1 ${currentMode === item.mode
                   ? 'text-indigo-600 dark:text-indigo-400'
                   : 'text-slate-400 dark:text-slate-500'
-                }`}
+                } `}
             >
-              <span className={`text-xl transition-transform duration-200 ${currentMode === item.mode ? '-translate-y-1' : ''}`}>{item.icon}</span>
+              <span className={`text - xl transition - transform duration - 200 ${currentMode === item.mode ? '-translate-y-1' : ''} `}>{item.icon}</span>
               <span className="text-[10px] font-medium">{item.label}</span>
             </button>
           ))}

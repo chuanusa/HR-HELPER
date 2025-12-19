@@ -5,6 +5,7 @@ export interface Person {
 
 export enum AppMode {
   INPUT = 'INPUT',
+  PRIZES = 'PRIZES',
   LUCKY_DRAW = 'LUCKY_DRAW',
   GROUPING = 'GROUPING',
 }

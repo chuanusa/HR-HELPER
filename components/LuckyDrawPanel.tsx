@@ -5,9 +5,11 @@ import confetti from 'canvas-confetti';
 
 interface LuckyDrawPanelProps {
   names: Person[];
+  prizes: Prize[];
+  setPrizes: React.Dispatch<React.SetStateAction<Prize[]>>;
 }
 
-export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names }) => {
+export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names, prizes, setPrizes }) => {
   const [settings, setSettings] = useState<LuckyDrawSettings>({ allowRepeat: false });
   const [currentWinner, setCurrentWinner] = useState<Person | null>(null);
   const [currentPrize, setCurrentPrize] = useState<Prize | null>(null);
@@ -17,9 +19,9 @@ export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names }) => {
   const [history, setHistory] = useState<HistoryRecord[]>([]);
   const [remainingNames, setRemainingNames] = useState<Person[]>(names);
 
-  // Prize States
-  const [prizes, setPrizes] = useState<Prize[]>([]);
-  const [prizeInput, setPrizeInput] = useState('');
+  // Prize States (Removed local state)
+  // const [prizes, setPrizes] = useState<Prize[]>([]);
+  // const [prizeInput, setPrizeInput] = useState('');
 
   // Animation refs
   const intervalRef = useRef<number | null>(null);
@@ -34,6 +36,8 @@ export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names }) => {
       setDisplayPerson(null);
     }
   }, [names]);
+
+  // ... (toggleRepeat logic unchanged)
 
   const toggleRepeat = () => {
     setSettings(prev => ({ ...prev, allowRepeat: !prev.allowRepeat }));
@@ -74,33 +78,7 @@ export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names }) => {
     frame();
   };
 
-  // Prize Handlers
-  const handleAddPrize = () => {
-    if (!prizeInput.trim()) return;
-    const items = prizeInput.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-    const newPrizes = items.map((name, idx) => ({
-      id: Date.now().toString() + idx + Math.random(),
-      name
-    }));
-    setPrizes(prev => [...prev, ...newPrizes]);
-    setPrizeInput('');
-  };
-
-  const removePrize = (id: string) => {
-    setPrizes(prev => prev.filter(p => p.id !== id));
-  };
-
-  const movePrize = (index: number, direction: 'up' | 'down') => {
-    if (direction === 'up' && index === 0) return;
-    if (direction === 'down' && index === prizes.length - 1) return;
-
-    setPrizes(prev => {
-      const newPrizes = [...prev];
-      const targetIndex = direction === 'up' ? index - 1 : index + 1;
-      [newPrizes[index], newPrizes[targetIndex]] = [newPrizes[targetIndex], newPrizes[index]];
-      return newPrizes;
-    });
-  };
+  // Prize Handlers (Removed local input handlers, kept logic consumption in Draw)
 
   const startDraw = () => {
     if (remainingNames.length === 0) {
@@ -213,55 +191,11 @@ export const LuckyDrawPanel: React.FC<LuckyDrawPanelProps> = ({ names }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Prize Settings (New Column) */}
-        <div className="glass-card rounded-2xl flex flex-col h-[500px] border border-white/20 dark:border-white/10 overflow-hidden order-2 lg:order-1">
-          <div className="p-5 border-b border-indigo-50 dark:border-white/10 bg-indigo-50/50 dark:bg-white/5">
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center mb-2">
-              <span className="mr-2">🎁</span> 獎項設定
-            </h3>
-            <div className="flex gap-2">
-              <input
-                className="flex-1 bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="輸入獎項..."
-                value={prizeInput}
-                onChange={(e) => setPrizeInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddPrize()}
-              />
-              <button onClick={handleAddPrize} className="bg-indigo-500 text-white rounded-lg px-3 py-1 text-sm hover:bg-indigo-600 transition-colors">
-                新增
-              </button>
-            </div>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
-            {prizes.length === 0 ? (
-              <div className="text-center text-slate-400 text-sm py-8 italic">
-                尚未設定獎項<br />(將使用預設顯示)
-              </div>
-            ) : (
-              prizes.map((prize, idx) => (
-                <div key={prize.id} className={`flex items-center justify-between p-2 rounded-lg border transition-colors ${idx === 0 ? 'bg-indigo-50 dark:bg-indigo-500/20 border-indigo-200 dark:border-indigo-500/30' : 'bg-white/50 dark:bg-white/5 border-slate-100 dark:border-white/5'}`}>
-                  <div className="flex items-center flex-1 min-w-0">
-                    <span className={`text-xs font-bold mr-2 w-5 h-5 flex items-center justify-center rounded-full ${idx === 0 ? 'bg-indigo-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500'}`}>
-                      {idx + 1}
-                    </span>
-                    <span className="text-sm font-medium truncate text-slate-700 dark:text-slate-200">{prize.name}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => movePrize(idx, 'up')} className="p-1 hover:bg-slate-200 dark:hover:bg-white/10 rounded text-slate-400 hover:text-indigo-500 disabled:opacity-30" disabled={idx === 0}>↑</button>
-                    <button onClick={() => movePrize(idx, 'down')} className="p-1 hover:bg-slate-200 dark:hover:bg-white/10 rounded text-slate-400 hover:text-indigo-500 disabled:opacity-30" disabled={idx === prizes.length - 1}>↓</button>
-                    <button onClick={() => removePrize(prize.id)} className="p-1 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded text-slate-400 hover:text-rose-500">×</button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Stage */}
-        <div className="lg:col-span-2 space-y-6 order-1 lg:order-2">
+        <div className="lg:col-span-2 space-y-6 lg:order-1">
           <div className="relative glass-card rounded-3xl p-2 shadow-2xl overflow-hidden min-h-[500px] flex flex-col items-center justify-center border border-white/20 dark:border-white/10 group">
-            {/* Fancy Border Gradient */}
+            {/* Fancy Border Gradient - NO CHANGES needed inside here mostly */}
             <div className={`absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-20 group-hover:opacity-30 transition-opacity duration-1000 ${isRolling ? 'animate-pulse' : ''}`} style={{ margin: '-1px', zIndex: 0, filter: 'blur(40px)' }}></div>
 
             <div className="relative z-10 w-full h-full rounded-2xl flex flex-col items-center justify-center p-8 overflow-hidden bg-white/50 dark:bg-transparent">
