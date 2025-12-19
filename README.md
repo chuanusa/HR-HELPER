@@ -1,20 +1,69 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# HR Helper
 
-# Run and deploy your AI Studio app
+HR Helper is a modern tool designed to assist with human resources tasks, including lucky draws and group management.
 
-This contains everything you need to run your app locally.
+## Project Setup
 
-View your app in AI Studio: https://ai.studio/apps/drive/17KnZQoNyFgi6ZxoOtavY5hlcNR4b7yWF
+### Prerequisites
 
-## Run Locally
+- Node.js (Version 20 or higher recommended)
+- npm (Node Package Manager)
 
-**Prerequisites:**  Node.js
+### Installation
 
+1. Clone the repository:
+   ```sh
+   git clone <repository-url>
+   cd HR-HELPER
+   ```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+2. Install dependencies:
+   ```sh
+   npm install
+   ```
+
+## Usage
+
+### Development
+
+To start the local development server:
+
+```sh
+npm run dev
+```
+
+The application will be available at `http://localhost:3000` (or similar).
+
+### Production Build
+
+To build the application for production:
+
+```sh
+npm run build
+```
+
+The build artifacts will be located in the `dist/` directory.
+
+### Preview Production Build
+
+To preview the production build locally:
+
+```sh
+npm run preview
+```
+
+## Deployment
+
+The project is configured to deploy automatically to GitHub Pages using GitHub Actions.
+
+- **Trigger**: Pushing to the `main` branch.
+- **Workflow File**: `.github/workflows/deploy.yml`
+
+Ensure that GitHub Pages is configured to serve from the `gh-pages` branch in your repository settings after the first successful deployment.
+
+## Technologies Used
+
+- [React](https://react.dev/)
+- [Vite](https://vitejs.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Canvas Confetti](https://www.npmjs.com/package/canvas-confetti)
